@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+//TODO: Step 2 - Import the rFlutter_Alert package here.
 import 'quiz_brain.dart';
 
 QuizBrain quizBrain = QuizBrain();
@@ -30,33 +31,43 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
 
-  int questionNumber = 0;
+  void checkAnswer(bool userPickedAnswer) {
+    bool correctAnswer = quizBrain.getCorrectAnswer();
 
-  void updateQuestionNumber() {
-    if (questionNumber < quizBrain.getQuestionsLength() - 1) {
-      questionNumber++;
-      return;
-    }
-    scoreKeeper = [];
-    questionNumber = 0;
-  }
+    setState(() {
+      //TODO: Step 4 - Use IF/ELSE to check if we've reached the end of the quiz. If so,
+      //On the next line, you can also use if (quizBrain.isFinished()) {}, it does the same thing.
+      if (quizBrain.isFinished() == true) {
+        //TODO Step 4 Part A - show an alert using rFlutter_alert,
 
-  void checkAnswer(bool answer) {
-    if (answer == quizBrain.getQuestionAnswer(questionNumber)) {
-      scoreKeeper.add(
-        const Icon(
-          Icons.check,
-          color: Colors.green,
-        ),
-      );
-      return;
-    }
-    scoreKeeper.add(
-      const Icon(
-        Icons.close,
-        color: Colors.red,
-      ),
-    );
+        //This is the code for the basic alert from the docs for rFlutter Alert:
+        //Alert(context: context, title: "RFLUTTER", desc: "Flutter is awesome.").show();
+
+        //Modified for our purposes:
+
+        //TODO Step 4 Part C - reset the questionNumber,
+        quizBrain.reset();
+
+        //TODO Step 4 Part D - empty out the scoreKeeper.
+        scoreKeeper = [];
+      }
+
+      //TODO: Step 6 - If we've not reached the end, ELSE do the answer checking steps below 👇
+      else {
+        if (userPickedAnswer == correctAnswer) {
+          scoreKeeper.add(Icon(
+            Icons.check,
+            color: Colors.green,
+          ));
+        } else {
+          scoreKeeper.add(Icon(
+            Icons.close,
+            color: Colors.red,
+          ));
+        }
+        quizBrain.nextQuestion();
+      }
+    });
   }
 
   @override
@@ -71,7 +82,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                quizBrain.getQuestionText(questionNumber),
+                quizBrain.getQuestionText(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -87,7 +98,7 @@ class _QuizPageState extends State<QuizPage> {
             child: FlatButton(
               textColor: Colors.white,
               color: Colors.green,
-              child: const Text(
+              child: Text(
                 'True',
                 style: TextStyle(
                   color: Colors.white,
@@ -95,10 +106,8 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                setState(() {
-                  checkAnswer(true);
-                  updateQuestionNumber();
-                });
+                //The user picked true.
+                checkAnswer(true);
               },
             ),
           ),
@@ -108,7 +117,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(15.0),
             child: FlatButton(
               color: Colors.red,
-              child: const Text(
+              child: Text(
                 'False',
                 style: TextStyle(
                   fontSize: 20.0,
@@ -116,17 +125,15 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                setState(() {
-                  checkAnswer(false);
-                  updateQuestionNumber();
-                });
+                //The user picked false.
+                checkAnswer(false);
               },
             ),
           ),
         ),
         Row(
           children: scoreKeeper,
-        ),
+        )
       ],
     );
   }
